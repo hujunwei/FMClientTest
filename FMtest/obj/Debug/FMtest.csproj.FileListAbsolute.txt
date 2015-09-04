@@ -1,0 +1,38 @@
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\FMtest.exe.config
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\obj\Debug\FMtest.csproj.App.config
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\obj\Debug\FMtest.csprojResolveAssemblyReference.cache
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\FMtest.exe
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\FMtest.pdb
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\Newtonsoft.Json.dll
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\System.Net.Http.Extensions.dll
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\System.Net.Http.Primitives.dll
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\Newtonsoft.Json.xml
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\System.Net.Http.Extensions.xml
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\System.Net.Http.Primitives.xml
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\obj\Debug\FMtest.exe
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\obj\Debug\FMtest.pdb
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\Nancy.dll
+c:\users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\Nancy.xml
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\PlanningServiceHelper.dll
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\DataModel.dll
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\PlanningServiceHelper.pdb
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\FMtest\bin\Debug\DataModel.pdb
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\FMtest.exe.config
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\obj\Debug\FMtest.exe
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\obj\Debug\FMtest.pdb
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\FMtest.exe
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\FMtest.pdb
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\Nancy.dll
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\Newtonsoft.Json.dll
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\PlanningServiceHelper.dll
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\System.Net.Http.Extensions.dll
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\System.Net.Http.Primitives.dll
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\DataModel.dll
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\PlanningServiceHelper.pdb
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\Nancy.xml
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\Newtonsoft.Json.xml
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\System.Net.Http.Extensions.xml
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\System.Net.Http.Primitives.xml
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\DataModel.pdb
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\obj\Debug\FMtest.csproj.App.config
+C:\Users\junweihu\Desktop\FMClientTest\FMtest\obj\Debug\FMtest.csprojResolveAssemblyReference.cache

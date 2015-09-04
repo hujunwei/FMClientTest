@@ -1,0 +1,18 @@
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\PlanningServiceHelper\bin\Debug\PlanningServiceHelper.dll
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\PlanningServiceHelper\bin\Debug\PlanningServiceHelper.pdb
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\PlanningServiceHelper\bin\Debug\DataModel.dll
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\PlanningServiceHelper\bin\Debug\Newtonsoft.Json.dll
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\PlanningServiceHelper\bin\Debug\DataModel.pdb
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\PlanningServiceHelper\bin\Debug\Newtonsoft.Json.xml
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.csprojResolveAssemblyReference.cache
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.dll
+C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.pdb
+C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\bin\Debug\PlanningServiceHelper.dll
+C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\bin\Debug\PlanningServiceHelper.pdb
+C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\bin\Debug\DataModel.dll
+C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\bin\Debug\Newtonsoft.Json.dll
+C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\bin\Debug\DataModel.pdb
+C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\bin\Debug\Newtonsoft.Json.xml
+C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.csprojResolveAssemblyReference.cache
+C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.dll
+C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.pdb
