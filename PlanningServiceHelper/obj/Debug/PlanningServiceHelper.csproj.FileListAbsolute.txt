@@ -16,3 +16,16 @@ C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\bin\Debug\Newtonsof
 C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.csprojResolveAssemblyReference.cache
 C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.dll
 C:\Users\junweihu\Desktop\FMClientTest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.csprojResolveAssemblyReference.cache
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\obj\Debug\PlanningServiceHelper.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\PlanningServiceHelper.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\PlanningServiceHelper.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\DataModel.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\Newtonsoft.Json.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\EntityFramework.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\DataModel.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\Newtonsoft.Json.xml
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\EntityFramework.xml
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\System.Net.Http.Formatting.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\PlanningServiceHelper\bin\Debug\System.Net.Http.Formatting.xml

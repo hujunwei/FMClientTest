@@ -36,3 +36,26 @@ C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\System.Net.Http.Primitiv
 C:\Users\junweihu\Desktop\FMClientTest\FMtest\bin\Debug\DataModel.pdb
 C:\Users\junweihu\Desktop\FMClientTest\FMtest\obj\Debug\FMtest.csproj.App.config
 C:\Users\junweihu\Desktop\FMClientTest\FMtest\obj\Debug\FMtest.csprojResolveAssemblyReference.cache
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\FMtest.exe.config
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\obj\Debug\FMtest.exe
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\obj\Debug\FMtest.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\FMtest.exe
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\FMtest.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\Nancy.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\Newtonsoft.Json.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\PlanningServiceHelper.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\System.Net.Http.Extensions.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\System.Net.Http.Primitives.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\DataModel.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\EntityFramework.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\PlanningServiceHelper.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\Nancy.xml
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\Newtonsoft.Json.xml
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\System.Net.Http.Extensions.xml
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\System.Net.Http.Primitives.xml
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\DataModel.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\EntityFramework.xml
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\obj\Debug\FMtest.csproj.App.config
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\obj\Debug\FMtest.csprojResolveAssemblyReference.cache
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\System.Net.Http.Formatting.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\FMtest\bin\Debug\System.Net.Http.Formatting.xml

@@ -5,3 +5,15 @@ C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\DataModel\bin\Deb
 C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\DataModel\obj\Debug\DataModel.csprojResolveAssemblyReference.cache
 C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\DataModel\obj\Debug\DataModel.dll
 C:\Users\junweihu\documents\visual studio 2013\Projects\FMtest\DataModel\obj\Debug\DataModel.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\obj\Debug\DataModel.csprojResolveAssemblyReference.cache
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\obj\Debug\DataModel.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\obj\Debug\DataModel.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\bin\Debug\DataModel.dll.config
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\bin\Debug\DataModel.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\bin\Debug\DataModel.pdb
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\bin\Debug\EntityFramework.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\bin\Debug\Newtonsoft.Json.dll
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\bin\Debug\EntityFramework.xml
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\junweihu\Documents\Visual Studio 2013\Projects\FMClientTest\DataModel\bin\Debug\Newtonsoft.Json.xml
