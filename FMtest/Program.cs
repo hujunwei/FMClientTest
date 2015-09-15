@@ -17,52 +17,35 @@ namespace FMtest
     {
         private static void Main(string[] args)
         {
-            //Console.WriteLine("Please Input qualifier name: ");
-            //var qualifierName = Console.ReadLine();
-            //var resultAzureGeo = FaciliityMasterClient.GetFacilityData(qualifierName);
-            //QualifierHelper.AddQualifier(qualifierName, resultAzureGeo);
-            //Console.WriteLine("Finish!");
-            //Console.ReadLine();
+            Console.WriteLine("Please Input qualifier name: ");
+            var qualifierName = Console.ReadLine();
+            var resultAzureGeo = FaciliityMasterClient.GetFacilityData(qualifierName);
+            QualifierHelper.IngestQualifierToService("AzureGeo", "null", resultAzureGeo);
+            Console.WriteLine("Finish!");
+            Console.ReadLine();
+
+
+
+            //var configListCreatedFromCsv = ConfigurationHelper.CreateConfigurationsFromCsv(@"C:\Users\junweihu\Desktop\Milestone Lead Time.csv", 43);
+            //Console.WriteLine("Sending " + configListCreatedFromCsv.Count + " configs to service..");
+            ////ConfigurationHelper.IngestConfigurationToService(configListCreatedFromCsv);
+
+            //Console.WriteLine("Done!");
 
 
 
 
-
-            //var responseObject = 
-            //var templateJToken = responseObject["Template"];
-            //var templateRetrived = (ConfigTemplate)JsonConvert.DeserializeObject(templateJToken.ToString(), typeof(ConfigTemplate));
-
-
-
-            //var client = new HttpClient();
-            //using (
-            //    var request = new HttpRequestMessage(HttpMethod.Get,
-            //        "https://planningconfigtest.cloudapp.net/api/template/9"))
-            //{
-            //    using (var response = client.SendAsync(request, CancellationToken.None).Result)
-            //    {
+            //var qualifierIds = new List<int> { 40,34,4,32,37 };
+            //var attributeIds = new List<int> { 1114,8,9,1073 };
+            //var template = TemplateHelper.CreateTemplate("Milestone Lead Time Global", true, 7, attributeIds, qualifierIds);
+            //var response = TemplateHelper.AddTemplateToService("https://planningconfigtest.cloudapp.net/api/template/add", template);
 
 
-            //        var responseObject = response.Content.ReadAsAsync<JObject>().Result;
+            //AttributeHelper.IngestAttributeToService("LeadTimeCategory", false, "null", AttributeType.String);
 
 
-            //        using (System.IO.StreamWriter file =
-            //            new System.IO.StreamWriter(@"C:\Users\junweihu\Desktop\TemplateResponseInfo.txt"))
-            //        {
-            //            file.Write(responseObject.ToString());
-            //        }
 
-            //    }
-               
 
-            //}
-            //var response = ConfigurationHelper.QueryService("https://planningconfigtest.cloudapp.net/api/template/9");
-            //var responseObject = response.Content.ReadAsAsync<JObject>().Result;
-            //Console.WriteLine(responseObject["Name"]);
-            
-
-            ConfigurationHelper.CreateConfigurationFromCsv(@"C:\Users\junweihu\Desktop\Configurations.csv", 9);
-          
 
         }
     }

@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attribute.cs" />
     <Compile Include="AttributeType.cs" />
     <Compile Include="Category.cs" />
     <Compile Include="ConfigAttribute.cs" />
