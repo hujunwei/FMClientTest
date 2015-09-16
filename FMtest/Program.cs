@@ -17,20 +17,27 @@ namespace FMtest
     {
         private static void Main(string[] args)
         {
-            Console.WriteLine("Please Input qualifier name: ");
-            var qualifierName = Console.ReadLine();
-            var resultAzureGeo = FaciliityMasterClient.GetFacilityData(qualifierName);
-            QualifierHelper.IngestQualifierToService("AzureGeo", "null", resultAzureGeo);
-            Console.WriteLine("Finish!");
-            Console.ReadLine();
+            //Console.WriteLine("Please Input qualifier name: ");
+            //var qualifierName = Console.ReadLine();
+            //var resultAzureGeo = FaciliityMasterClient.GetFacilityData(qualifierName);
+            //QualifierHelper.IngestQualifierToService("AzureGeo", "null", resultAzureGeo);
+            //Console.WriteLine("Finish!");
+            //Console.ReadLine();
 
 
 
-            //var configListCreatedFromCsv = ConfigurationHelper.CreateConfigurationsFromCsv(@"C:\Users\junweihu\Desktop\Milestone Lead Time.csv", 43);
-            //Console.WriteLine("Sending " + configListCreatedFromCsv.Count + " configs to service..");
-            ////ConfigurationHelper.IngestConfigurationToService(configListCreatedFromCsv);
+            var configListCreatedFromCsv = ConfigurationHelper.CreateSellableCapacityConfigsFromCsv(@"C:\Users\junweihu\Desktop\Sellable capacity data1.csv", 58);
+            Console.WriteLine("Sending " + configListCreatedFromCsv.Count + " configs to service..");
+            ConfigurationHelper.IngestConfigurationToService(configListCreatedFromCsv);
+            //using (var fileWriter = new StreamWriter(@"C:\Users\junweihu\Desktop\Sellable capacity data.txt"))
+            //{
+            //    fileWriter.Write(JsonConvert.SerializeObject(configListCreatedFromCsv));
+            //}
 
-            //Console.WriteLine("Done!");
+
+
+
+            Console.WriteLine("Done!");
 
 
 
