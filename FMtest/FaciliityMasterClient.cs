@@ -26,18 +26,8 @@ namespace FMtest
         /// </summary>
         /// <param name="attributeType">Type of the attribute.</param>
         /// <returns>
-        ///     A List of string used for Qualifier value
+        ///     A List of string used for Qualifier value.
         /// </returns>
-        /// <exception cref="System.ArgumentException"></exception>
-        /// <exception cref="System.Exception">
-        ///     QueryFacilityMaster returns insuccess response
-        ///     or
-        ///     QueryFacilityMaster returns insuccess response
-        ///     or
-        ///     Invalid attributeType
-        /// </exception>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="Exception">QueryFacilityMaster returns insuccess response</exception>
         public static List<string> GetFacilityData(string attributeType)
         {
             if (string.IsNullOrEmpty(attributeType))
@@ -54,21 +44,13 @@ namespace FMtest
                     var responseContent = response.Content.ReadAsStreamAsync().Result;
                     JsonReader jsonReader = new JsonTextReader(new StreamReader(responseContent));
                     var jArrayResult = (JArray) JToken.ReadFrom(jsonReader);
-                    foreach (var jToken in jArrayResult)
+                    foreach (
+                        var attributeItemName in
+                            jArrayResult.Select(jToken => jToken?["Name"])
+                                .Where(
+                                    attributeItemName =>
+                                        !string.IsNullOrEmpty(attributeItemName?.ToString())))
                     {
-                        if (jToken == null)
-                        {
-                            continue;
-                        }
-                        var attributeItemName = jToken["Name"];
-                        if (attributeItemName == null)
-                        {
-                            continue;
-                        }
-                        if (string.IsNullOrEmpty(attributeItemName.ToString()))
-                        {
-                            continue;
-                        }
                         result.Add(attributeItemName.ToString());
                     }
                 }
@@ -87,13 +69,13 @@ namespace FMtest
                         {
                             continue;
                         }
-                        foreach (var jToken2 in azureRegions)
+                        foreach (
+                            var azureRegionName in
+                                azureRegions.Select(jToken2 => jToken2["Name"])
+                                    .Where(
+                                        azureRegionName =>
+                                            !string.IsNullOrEmpty(azureRegionName.ToString())))
                         {
-                            var azureRegionName = jToken2["Name"];
-                            if (string.IsNullOrEmpty(azureRegionName.ToString()))
-                            {
-                                continue;
-                            }
                             result.Add(azureRegionName.ToString());
                         }
                     }
@@ -110,15 +92,8 @@ namespace FMtest
         /// </summary>
         /// <param name="facilityMasterApi">The facility master API.</param>
         /// <returns>
-        ///     The httpResponseMessage instance
+        ///     The httpResponseMessage instance.
         /// </returns>
-        /// <exception cref="System.ArgumentException"></exception>
-        /// <exception cref="System.Exception">
-        ///     Certificate not found
-        ///     or
-        ///     Get facility master response fail
-        /// </exception>
-        /// <exception cref="Exception">Certificate not found</exception>
         private static HttpResponseMessage QueryFacilityMaster(string facilityMasterApi)
         {
             if (string.IsNullOrEmpty(facilityMasterApi))
@@ -154,10 +129,8 @@ namespace FMtest
         /// </summary>
         /// <param name="thumbprint">The thumbprint for the certificate.</param>
         /// <returns>
-        ///     The X509Certificate2 instance
+        ///     The X509Certificate2 instance.
         /// </returns>
-        /// <exception cref="System.ArgumentException"></exception>
-        /// <exception cref="System.Exception">Certificate with thumbprint:  + thumbprint + not found</exception>
         private static X509Certificate2 GetCertificateFromStore(string thumbprint)
         {
             if (string.IsNullOrEmpty(thumbprint))

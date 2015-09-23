@@ -22,17 +22,24 @@ namespace PlanningServiceHelper
         private const string PlanningConfigServiceRootUrl =
             "https://planningconfigtest.cloudapp.net/";
 
+        /// <summary>
+        /// Ingests the configuration to service.
+        /// </summary>
+        /// <param name="configsList">The configs list.</param>
         public static void IngestConfigurationToService(List<Configuration> configsList)
         {
             var count = 0;
-            using (var logWriter = new StreamWriter(Directory.GetCurrentDirectory()
-                                                    + @"\ConfigurationsHelperServiceErrorLog.txt"))
+            using (
+                var logWriter =
+                    new StreamWriter(Directory.GetCurrentDirectory() +
+                                     @"\ConfigurationsHelperServiceErrorLog.txt"))
             {
                 for (var i = 0; i < configsList.Count; i++)
                 {
-                    var responseForAdd = AddConfigurationToService(
-                        "https://planningconfigtest.cloudapp.net/api/Configuration/add/",
-                        configsList[i]);
+                    var responseForAdd =
+                        AddConfigurationToService(
+                            "https://planningconfigtest.cloudapp.net/api/Configuration/add/",
+                            configsList[i]);
                     if (!responseForAdd.IsSuccessStatusCode)
                     {
                         //throw new Exception("Adding Configuration to service returns insuccess response");
@@ -57,134 +64,372 @@ namespace PlanningServiceHelper
         }
 
         /// <summary>
-        ///     Creates the configuration from CSV.
+        /// Creates the configuration from CSV.
         /// </summary>
         /// <param name="filePath">The file path.</param>
         /// <param name="templateId">The template identifier.</param>
+        /// <returns>A list of configuration instances.</returns>
         public static List<Configuration> CreateConfigurationsFromCsv(string filePath,
             int templateId)
         {
             var configListFromCsv = new List<Configuration>();
-            try
+            //Get template from service to help validate the csv file is in correct format to create qualifier
+            var response = QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId);
+            //Parse response as template in JObject
+            var templateJObjectFromService = response.Content.ReadAsAsync<JObject>().Result;
+            //Get attributes of the template from service
+            var attributesOfTemplateFromService =
+                QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId +
+                             "/attributes")
+                    .Content.ReadAsAsync<List<JObject>>()
+                    .Result;
+            //Get qualifiers of the template from service
+            var qualifiersOfTemplateFromService =
+                QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId +
+                             "/qualifiers")
+                    .Content.ReadAsAsync<List<JObject>>()
+                    .Result;
+            var numAttributesOfTemplateFromService = attributesOfTemplateFromService.Count();
+            var numQualifiersOfTemplateFromService = qualifiersOfTemplateFromService.Count();
+            //Create the map for attributes and qualifiers keyed by their names
+            var attributesMapKeyedByName =
+                attributesOfTemplateFromService.ToDictionary(
+                    attributeJObject => attributeJObject["Name"].ToString().ToLower());
+            var qualifiersMapKeyedByName =
+                qualifiersOfTemplateFromService.ToDictionary(
+                    qualifierJObject => qualifierJObject["Name"].ToString().ToLower());
+            using (var csvReader = new StreamReader(File.OpenRead(filePath)))
             {
-                //Get template from service to help validate the csv file is in correct format to create qualifier
-                var response =
-                    QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId);
-                //Parse response as template in JObject
-                var templateJObjectFromService = response.Content.ReadAsAsync<JObject>().Result;
-                //Get attributes of the template from service
-                var attributesOfTemplateFromService =
-                    QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId +
-                                 "/attributes")
-                        .Content.ReadAsAsync<List<JObject>>()
-                        .Result;
-                //Get qualifiers of the template from service
-                var qualifiersOfTemplateFromService =
-                    QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId +
-                                 "/qualifiers")
-                        .Content.ReadAsAsync<List<JObject>>()
-                        .Result;
-                var numAttributesOfTemplateFromService = attributesOfTemplateFromService.Count();
-                var numQualifiersOfTemplateFromService = qualifiersOfTemplateFromService.Count();
-                //Create the map for attributes and qualifiers keyed by their names
-                var attributesMapKeyedByName =
-                    attributesOfTemplateFromService.ToDictionary(
-                        attributeJObject => attributeJObject["Name"].ToString().ToLower());
-                var qualifiersMapKeyedByName =
-                    qualifiersOfTemplateFromService.ToDictionary(
-                        qualifierJObject => qualifierJObject["Name"].ToString().ToLower());
-                using (var csvReader = new StreamReader(File.OpenRead(filePath)))
+                using (
+                    var logWriter =
+                        new StreamWriter(Directory.GetCurrentDirectory() +
+                                         @"\ConfigurationsHelperValidationErrorLog.txt"))
                 {
-                    using (
-                        var logWriter =
-                            new StreamWriter(Directory.GetCurrentDirectory() +
-                                             @"\ConfigurationsHelperValidationErrorLog.txt"))
+                    //MembersOfConfigLine is the first line of the Csv file, which contains Name, NameOfQuaifiers[], NameOfAttributes[], StartDate, EndDate
+                    var membersOfConfigLine = csvReader.ReadLine();
+                    if (membersOfConfigLine == null)
                     {
-                        //MembersOfConfigLine is the first line of the Csv file, which contains Name, NameOfQuaifiers[], NameOfAttributes[], StartDate, EndDate
-                        var membersOfConfigLine = csvReader.ReadLine();
-                        if (membersOfConfigLine == null)
+                        throw new Exception("Invalid Csv file for Configuration");
+                    }
+                    //Split first line to a list
+                    var membersOfConfigList =
+                        SplitCsv(membersOfConfigLine)
+                            .Select(attribute => attribute.ToLower())
+                            .ToList();
+                    //Validate the first line matches the Template of Configuration from service
+                    if (
+                        ValidateCsvFormat(membersOfConfigList, qualifiersOfTemplateFromService,
+                            attributesOfTemplateFromService) == false)
+                    {
+                        throw new Exception(
+                            "Configuration in csv does not match corresponding template from service");
+                    }
+                    var lineCount = 1;
+                    //Read begin from second line of Csv file, each line contains information for a configuration
+                    while (!csvReader.EndOfStream)
+                    {
+                        var line = csvReader.ReadLine();
+                        lineCount++;
+                        if (line == null)
                         {
-                            throw new Exception("Invalid Csv file for Configuration");
+                            continue;
                         }
-                        //Split first line to a list
-                        var membersOfConfigList =
-                            SplitCsv(membersOfConfigLine)
-                                .Select(attribute => attribute.ToLower())
-                                .ToList();
-                        //Validate the first line matches the Template of Configuration from service
-                        if (
-                            ValidateCsvFormat(membersOfConfigList, qualifiersOfTemplateFromService,
-                                attributesOfTemplateFromService) == false)
+                        //Split readed line to a list that contains members of a Configuration class
+                        var valueListForOneLine = SplitCsv(line).ToList();
+                        if (!valueListForOneLine.Any() ||
+                            valueListForOneLine.Count != membersOfConfigList.Count)
                         {
-                            throw new Exception(
-                                "Configuration in csv does not match corresponding template from service");
+                            continue;
                         }
-                        var lineCount = 1;
-                        //Read begin from second line of Csv file, each line contains information for a configuration
-                        while (!csvReader.EndOfStream)
+                        //First element is the name for a configuration
+                        var configName = valueListForOneLine[0];
+                        //CategoryId of a Configuration equals to CategoryId of the Template for this configuration
+                        var configCategoryId = (int) templateJObjectFromService["CategoryId"];
+                        //Template Id is passed outside of the function
+                        var configTemplateId = templateId;
+                        //Element in valueListForOneLine before the last one is the StartDate
+                        DateTime dateTimeResult;
+                        var configStartDate =
+                            DateTime.TryParse(valueListForOneLine[valueListForOneLine.Count - 2],
+                                out dateTimeResult)
+                                ? dateTimeResult
+                                : DateTime.Now;
+                        //Last element in valueListForOneLine is the EndDate
+                        var configEndDate =
+                            DateTime.TryParse(valueListForOneLine[valueListForOneLine.Count - 1],
+                                out dateTimeResult)
+                                ? dateTimeResult
+                                : configStartDate.AddDays(36);
+                        //Create configQualifier list and configAttribute list for the configuration
+                        var configQualifierList = new List<ConfigQualifier>();
+                        var configAttributeList = new List<ConfigAttribute>();
+                        var passValidation = true;
+                        var errorMsg = "";
+                        for (var i = 1;
+                            i <=
+                            numQualifiersOfTemplateFromService + numAttributesOfTemplateFromService;
+                            i++)
                         {
-                            var line = csvReader.ReadLine();
-                            lineCount++;
-                            if (line == null)
+                            if (i <= numQualifiersOfTemplateFromService)
                             {
+                                //Fetch the qualifier using the map keyed by name
+                                var targetQualifierJObject =
+                                    qualifiersMapKeyedByName[membersOfConfigList[i]];
+                                if (targetQualifierJObject == null)
+                                {
+                                    throw new Exception(
+                                        "Configuration in csv does not match corresponding template from service");
+                                }
+                                var qualifierId = (int) targetQualifierJObject["Id"];
+                                var qualifierValue = valueListForOneLine[i];
+                                //Test the value for the Qualifier, whether it is there in the VALUES list
+                                //In case of validation failure, add a error message to the console/log file
+                                if (!ValidateQualifierValue(qualifierValue, targetQualifierJObject))
+                                {
+                                    errorMsg += "[Qualifier:" + membersOfConfigList[i] +
+                                                "]Invalid qualifierValue: " + qualifierValue;
+                                    passValidation = false;
+                                    break;
+                                }
+                                var configQualifierVal = new ConfigQualifier
+                                {
+                                    QualifierId = qualifierId,
+                                    QualifierValue = valueListForOneLine[i]
+                                };
+                                configQualifierList.Add(configQualifierVal);
+                            }
+                            else
+                            {
+                                var targetAttributeJObject =
+                                    attributesMapKeyedByName[membersOfConfigList[i]];
+                                if (targetAttributeJObject == null)
+                                {
+                                    throw new Exception(
+                                        "Configuration in csv does not match corresponding template from service");
+                                }
+                                //Fetch the attributes using the map
+                                //Test the value for the attribute, whether it passes the rule
+                                //In case of validation failure, add a error message to the console/log file
+                                var attributeId = (int) targetAttributeJObject["Id"];
+                                var attributeValue = valueListForOneLine[i];
+                                if (!ValidateAttributeValue(attributeValue, targetAttributeJObject))
+                                {
+                                    errorMsg += "[Attribute:" + membersOfConfigList[i] +
+                                                "]Invalid attributeValue: " + attributeValue;
+                                    passValidation = false;
+                                    break;
+                                }
+                                var configAttributeVal = new ConfigAttribute
+                                {
+                                    AttributeId = attributeId,
+                                    AttributeValue = attributeValue,
+                                    Version = 1
+                                };
+                                configAttributeList.Add(configAttributeVal);
+                            }
+                        }
+                        if (passValidation == false)
+                        {
+                            logWriter.WriteLine("[Line: " + lineCount +
+                                                "] could not pass validation, the Configuration Name is: " +
+                                                configName);
+                            logWriter.WriteLine(errorMsg);
+                            continue;
+                        }
+                        var config = new Configuration
+                        {
+                            Name = configName,
+                            Active = true,
+                            CategoryId = configCategoryId,
+                            QualifierList = configQualifierList,
+                            AttributeList = configAttributeList,
+                            TemplateId = configTemplateId,
+                            StartDate = configStartDate,
+                            EndDate = configEndDate
+                        };
+                        Console.WriteLine("[Line: " + lineCount + "]" + "Configuration Name: " +
+                                          configName + " passes the validation");
+                        configListFromCsv.Add(config);
+                    }
+                }
+            }
+            return configListFromCsv;
+        }
+
+        /// <summary>
+        /// Creates the sellable capacity configs from CSV.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="templateId">The template identifier.</param>
+        /// <returns>A list of configuration instances.</returns>
+        public static List<Configuration> CreateSellableCapacityConfigsFromCsv(string filePath,
+            int templateId)
+        {
+            var scConfigList = new List<Configuration>();
+            //Get template from service to help validate the csv file is in correct format to create qualifier
+            var response = QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId);
+            //Parse response as template in JObject
+            var templateJObjectFromService = response.Content.ReadAsAsync<JObject>().Result;
+            //Get attributes of the template from service
+            var attributesOfTemplateFromService =
+                QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId +
+                             "/attributes")
+                    .Content.ReadAsAsync<List<JObject>>()
+                    .Result;
+            //Get qualifiers of the template from service
+            var qualifiersOfTemplateFromService =
+                QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId +
+                             "/qualifiers")
+                    .Content.ReadAsAsync<List<JObject>>()
+                    .Result;
+            var numAttributesOfTemplateFromService = attributesOfTemplateFromService.Count();
+            var numQualifiersOfTemplateFromService = qualifiersOfTemplateFromService.Count();
+            //Create the map for attributes and qualifiers keyed by their names
+            var attributesMapKeyedByName =
+                attributesOfTemplateFromService.ToDictionary(
+                    attributeJObject => attributeJObject["Name"].ToString().ToLower());
+            var qualifiersMapKeyedByName =
+                qualifiersOfTemplateFromService.ToDictionary(
+                    qualifierJObject => qualifierJObject["Name"].ToString().ToLower());
+            using (var csvReader = new StreamReader(filePath))
+            {
+                using (
+                    var logWriter =
+                        new StreamWriter(Directory.GetCurrentDirectory() +
+                                         @"\ConfigurationsHelperValidationErrorLog.txt"))
+                {
+                    //Read the schema of Csv
+                    var firstLine = csvReader.ReadLine();
+                    if (firstLine == null)
+                    {
+                        throw new Exception("File format Invalid");
+                    }
+                    var membersOfConfigList = SplitCsv(firstLine).ToList()
+                        .Select(attribute => attribute.ToLower())
+                        .ToList();
+                    var sellableCapacityPerRackIndex =
+                        membersOfConfigList.FindIndex(s => s.Equals("sellablecapacityperrack"));
+                    var sellableCapacityPerRackStartDateIndex =
+                        membersOfConfigList.FindIndex(s => s.Equals("start date"));
+                    var sellableCapacityPerRackAttributeId =
+                        (int)attributesMapKeyedByName["sellablecapacityperrack"]["Id"];
+                    //Read values and form a Map
+                    var scMap = new Dictionary<string, Configuration>();
+                    var lineCount = 1;
+                    while (!csvReader.EndOfStream)
+                    {
+                        var line = csvReader.ReadLine();
+                        lineCount++;
+                        if (line == null)
+                        {
+                            continue;
+                        }
+                        var valueListForOneLine = SplitCsv(line).ToList();
+                        if (!valueListForOneLine.Any() ||
+                            valueListForOneLine.Count != membersOfConfigList.Count)
+                        {
+                            continue;
+                        }
+                        //Concatenate qualifier value to form a key of map
+                        var sb = new StringBuilder();
+                        for (var i = 0; i < numQualifiersOfTemplateFromService; i++)
+                        {
+                            if (i > 0)
+                            {
+                                sb.Append("," + valueListForOneLine[i]);
+                            }
+                            else
+                            {
+                                sb.Append(valueListForOneLine[i]);
+                            }
+                        }
+                        var key = sb.ToString();
+                        //If key in the map then update config's CapacityPerRack, StartDate and EndDate
+                        if (scMap.ContainsKey(key))
+                        {
+                            var newTimeSeriesNumber =
+                                valueListForOneLine[sellableCapacityPerRackStartDateIndex] + ":" +
+                                valueListForOneLine[sellableCapacityPerRackIndex];
+                            var config = scMap[key];
+                            var errorMsg = "";
+                            var sellableCapacityPerRackAttribute =
+                                config.AttributeList.Single(
+                                    a => a.AttributeId == sellableCapacityPerRackAttributeId);
+                            if (
+                                !ValidateAttributeValue(newTimeSeriesNumber,
+                                    attributesMapKeyedByName["sellablecapacityperrack"]))
+                            {
+                                errorMsg += "[Attribute: CapacityPerRack" +
+                                            "]Invalid attributeValue: " + newTimeSeriesNumber;
+                                logWriter.WriteLine("[Line: " + lineCount +
+                                                    "] could not pass validation, the Configuration Name is: " +
+                                                    config.Name);
+                                logWriter.WriteLine(errorMsg);
                                 continue;
                             }
-                            //Split readed line to a list that contains members of a Configuration class
-                            var valueListForOneLine = SplitCsv(line).ToList();
-                            if (!valueListForOneLine.Any())
-                            {
-                                continue;
-                            }
-                            //First element is the name for a configuration
-                            var configName = valueListForOneLine[0];
-                            //CategoryId of a Configuration equals to CategoryId of the Template for this configuration
+                            //Append a new TimeSeriesNumber
+                            sellableCapacityPerRackAttribute.AttributeValue += "," +
+                                                                               newTimeSeriesNumber;
+                            DateTime dateTimeResult;
+                            var configStartDate =
+                                DateTime.TryParse(
+                                    valueListForOneLine[valueListForOneLine.Count - 2],
+                                    out dateTimeResult)
+                                    ? dateTimeResult
+                                    : DateTime.Now;
+                            //Update start date and end date
+                            var configEndDate =
+                                DateTime.TryParse(
+                                    valueListForOneLine[valueListForOneLine.Count - 2],
+                                    out dateTimeResult)
+                                    ? dateTimeResult
+                                    : configStartDate.AddDays(36);
+                            config.StartDate = configStartDate.CompareTo(config.StartDate) < 0
+                                ? configStartDate
+                                : config.StartDate;
+                            config.EndDate = configStartDate.CompareTo(config.EndDate) > 0
+                                ? configEndDate
+                                : config.EndDate;
+                            scMap[key] = config;
+                        }
+                        //Else create a new configuration and add to map
+                        else
+                        {
+                            var timeSeriesNumber =
+                                valueListForOneLine[sellableCapacityPerRackStartDateIndex] + ":" +
+                                valueListForOneLine[sellableCapacityPerRackIndex];
+                            var configName = key;
                             var configCategoryId = (int)templateJObjectFromService["CategoryId"];
-                            //Template Id is passed outside of the function
                             var configTemplateId = templateId;
-                            //Element in valueListForOneLine before the last one is the StartDate
-                            DateTime configStartDate;
-                            if (
-                                !string.IsNullOrEmpty(
-                                    valueListForOneLine[valueListForOneLine.Count - 2]))
-                            {
-                                configStartDate =
-                                    Convert.ToDateTime(
-                                        valueListForOneLine[valueListForOneLine.Count - 2]);
-                            }
-                            else
-                            {
-                                configStartDate = DateTime.Now;
-                            }
-                            //Last element in valueListForOneLine is the EndDate
-                            DateTime configEndDate;
-                            if (
-                                !string.IsNullOrEmpty(
-                                    valueListForOneLine[valueListForOneLine.Count - 1]))
-                            {
-                                configEndDate =
-                                    Convert.ToDateTime(
-                                        valueListForOneLine[valueListForOneLine.Count - 1]);
-                            }
-                            else
-                            {
-                                configEndDate = configStartDate.AddDays(36);
-                            }
-                            //Create configQualifier list and configAttribute list for the configuration
+                            DateTime dateTimeResult;
+                            var configStartDate =
+                                DateTime.TryParse(
+                                    valueListForOneLine[valueListForOneLine.Count - 2],
+                                    out dateTimeResult)
+                                    ? dateTimeResult
+                                    : DateTime.Now;
+                            //Update start date and end date
+                            var configEndDate =
+                                DateTime.TryParse(
+                                    valueListForOneLine[valueListForOneLine.Count - 2],
+                                    out dateTimeResult)
+                                    ? dateTimeResult
+                                    : configStartDate.AddDays(36);
                             var configQualifierList = new List<ConfigQualifier>();
                             var configAttributeList = new List<ConfigAttribute>();
                             var passValidation = true;
                             var errorMsg = "";
-                            for (var i = 1;
-                                i <=
+                            for (var i = 0;
+                                i <
                                 numQualifiersOfTemplateFromService +
                                 numAttributesOfTemplateFromService;
                                 i++)
                             {
-                                if (i <= numQualifiersOfTemplateFromService)
+                                if (i < numQualifiersOfTemplateFromService)
                                 {
-                                    //Fetch the qualifier using the map keyed by name
+                                    var qualifierName = membersOfConfigList[i].ToLower();
                                     var targetQualifierJObject =
-                                        qualifiersMapKeyedByName[membersOfConfigList[i]];
+                                        qualifiersMapKeyedByName[qualifierName];
                                     if (targetQualifierJObject == null)
                                     {
                                         throw new Exception(
@@ -192,8 +437,6 @@ namespace PlanningServiceHelper
                                     }
                                     var qualifierId = (int)targetQualifierJObject["Id"];
                                     var qualifierValue = valueListForOneLine[i];
-                                    //Test the value for the Qualifier, whether it is there in the VALUES list
-                                    //In case of validation failure, add a error message to the console/log file
                                     if (
                                         !ValidateQualifierValue(qualifierValue,
                                             targetQualifierJObject))
@@ -206,24 +449,26 @@ namespace PlanningServiceHelper
                                     var configQualifierVal = new ConfigQualifier
                                     {
                                         QualifierId = qualifierId,
-                                        QualifierValue = valueListForOneLine[i]
+                                        QualifierValue = qualifierValue
                                     };
                                     configQualifierList.Add(configQualifierVal);
                                 }
                                 else
                                 {
                                     var targetAttributeJObject =
-                                        attributesMapKeyedByName[membersOfConfigList[i]];
+                                        attributesMapKeyedByName[membersOfConfigList[i].ToLower()];
                                     if (targetAttributeJObject == null)
                                     {
                                         throw new Exception(
                                             "Configuration in csv does not match corresponding template from service");
                                     }
-                                    //Fetch the attributes using the map
-                                    //Test the value for the attribute, whether it passes the rule
-                                    //In case of validation failure, add a error message to the console/log file
                                     var attributeId = (int)targetAttributeJObject["Id"];
                                     var attributeValue = valueListForOneLine[i];
+                                    if (targetAttributeJObject["Name"].ToString().ToLower() ==
+                                        "sellablecapacityperrack")
+                                    {
+                                        attributeValue = timeSeriesNumber;
+                                    }
                                     if (
                                         !ValidateAttributeValue(attributeValue,
                                             targetAttributeJObject))
@@ -261,26 +506,26 @@ namespace PlanningServiceHelper
                                 StartDate = configStartDate,
                                 EndDate = configEndDate
                             };
-                            Console.WriteLine("[Line: " + lineCount + "]" + "Configuration Name: " +
-                                              configName +
-                                              " passes the validation");
-                            configListFromCsv.Add(config);
+                            scMap.Add(key, config);
                         }
                     }
+                    //Process Map and create sellable capacity configuration list
+                    scConfigList.AddRange(
+                        scMap.Keys.Select(
+                            key =>
+                                FormatCapacityPerRackValue(scMap[key],
+                                    sellableCapacityPerRackAttributeId)));
                 }
             }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            //using (var file = new StreamWriter(@"C:\Users\junweihu\Desktop\ConfigurationCreated.txt"))
-            //{
-            //    file.Write(JsonConvert.SerializeObject(configListFromCsv));
-            //}
-            return configListFromCsv;
+            return scConfigList;
         }
 
-        /// <returns>Boolean: whether the value string of configQualifier is in value list of Qualifier</returns>
+        /// <summary>
+        /// Validates the qualifier value.
+        /// </summary>
+        /// <param name="qualifierValue">The qualifier value.</param>
+        /// <param name="qualifierJObject">The qualifier j object.</param>
+        /// <returns>Whether qualifier value is in the qualifier valueList.</returns>
         private static bool ValidateQualifierValue(string qualifierValue,
             JObject qualifierJObject)
         {
@@ -289,45 +534,40 @@ namespace PlanningServiceHelper
             {
                 return false;
             }
-
             var qualifierValueList = qualifierJObject["Values"].ToList();
             return
                 qualifierValueList.Any(
                     t => t.ToString().ToLower().Contains(qualifierValue.ToLower()));
         }
 
-        /// <returns>Boolean: whether the attribute value comply with attribute rule</returns>
+        /// <summary>
+        /// Validates the attribute value.
+        /// </summary>
+        /// <param name="attributeValue">The attribute value.</param>
+        /// <param name="attributeJObject">The attribute j object.</param>
+        /// <returns>
+        /// Boolean: whether the attribute value comply with attribute rule
+        /// </returns>
         private static bool ValidateAttributeValue(string attributeValue,
             JObject attributeJObject)
         {
             var isSuccess = false;
-            //using (var logWriter = File.AppendText(@"C:\Users\junweihu\Desktop\ConfigurationsHelperErrorLog.txt"))
-            //{
             var attributeTypeString = attributeJObject["AttributeType"].ToString();
             if (string.IsNullOrEmpty(attributeTypeString))
             {
-                //logWriter.Write("AttributeType is null or empty");
                 return false;
             }
             var attributeType =
-                (AttributeType)Enum.Parse(typeof(AttributeType), attributeTypeString);
+                (AttributeType) Enum.Parse(typeof (AttributeType), attributeTypeString);
             var attributeRule = attributeJObject["Rule"].ToString();
             switch (attributeType)
             {
                 case AttributeType.Boolean:
                     bool boolVal;
                     isSuccess = bool.TryParse(attributeValue, out boolVal);
-                    if (isSuccess == false)
-                    {
-                        //logWriter.Write(attributeValue + " does not match AttributeRule for AttributeType: Boolean" );
-                    }
                     break;
                 case AttributeType.Date:
                     isSuccess = ValidateDate(attributeValue);
-                    if (isSuccess == false)
-                    {
-                        //logWriter.Write(attributeValue + " does not match AttributeRule for AttributeType: Date");
-                    }
                     break;
                 case AttributeType.KeyValue:
                     var keyVal = attributeValue.Split(':');
@@ -335,17 +575,9 @@ namespace PlanningServiceHelper
                     {
                         isSuccess = true;
                     }
-                    if (isSuccess == false)
-                    {
-                        //logWriter.Write(attributeValue + " does not match AttributeRule for AttributeType: KeyValue");
-                    }
                     break;
                 case AttributeType.Number:
                     isSuccess = ValidNumberRange(attributeRule, attributeValue);
-                    if (isSuccess == false)
-                    {
-                        //logWriter.Write(attributeValue + " does not match AttributeRule for AttributeType: Number");
-                    }
                     break;
                 case AttributeType.TimeSeriesNumber:
                     var timeNumberList = attributeValue.Split(',');
@@ -361,7 +593,6 @@ namespace PlanningServiceHelper
                         isSuccess = ValidateDate(timeVal[0]);
                         if (!isSuccess)
                         {
-                            //logWriter.Write(attributeValue + " does not match AttributeRule for AttributeType: TimeSeriesNumber");
                             break;
                         }
                         isSuccess = ValidNumberRange(attributeRule, timeVal[1]);
@@ -369,13 +600,11 @@ namespace PlanningServiceHelper
                     break;
                 case AttributeType.TimeSeriesString:
                     var timeStringList = attributeValue.Split(',');
-                    foreach (var timeData in timeStringList)
+                    foreach (var timeVal in timeStringList.Select(timeData => timeData.Split(':')))
                     {
-                        var timeVal = timeData.Split(':');
                         if (timeVal.Count() != 2)
                         {
                             isSuccess = false;
-                            //logWriter.Write(attributeValue + " does not match AttributeRule for AttributeType: TimeSeriesString");
                             break;
                         }
                         isSuccess = ValidateDate(timeVal[0]);
@@ -387,7 +616,6 @@ namespace PlanningServiceHelper
                 default:
                     return false;
             }
-            //}
             return isSuccess;
         }
 
@@ -395,7 +623,7 @@ namespace PlanningServiceHelper
         ///     Validates the date.
         /// </summary>
         /// <param name="dateString">The date string.</param>
-        /// <returns>Boolean: whether the date is a correct DateTime</returns>
+        /// <returns>Boolean: whether the date is a correct DateTime.</returns>
         private static bool ValidateDate(string dateString)
         {
             DateTime dateVal;
@@ -407,7 +635,7 @@ namespace PlanningServiceHelper
         /// </summary>
         /// <param name="attributeRule">The attribute rule.</param>
         /// <param name="attributeValue">The attribute value.</param>
-        /// <returns>Boolean: whether the number in the range that specified by rule</returns>
+        /// <returns>Boolean: whether the number in the range that specified by rule.</returns>
         private static bool ValidNumberRange(string attributeRule, string attributeValue)
         {
             double doubleValue;
@@ -438,7 +666,7 @@ namespace PlanningServiceHelper
         /// <param name="attributeOfConfigList">The attribute of configuration list.</param>
         /// <param name="configQualifiersForTemplateFromService">The configuration qualifiers for template from service.</param>
         /// <param name="configAttributesForTemplateFromService">The configuration attributes for template from service.</param>
-        /// <returns>Boolean: whether the first line of csv file matches template of the configuration</returns>
+        /// <returns>Boolean: whether the first line of csv file matches template of the configuration.</returns>
         private static bool ValidateCsvFormat(IReadOnlyList<string> attributeOfConfigList,
             List<JObject> configQualifiersForTemplateFromService,
             List<JObject> configAttributesForTemplateFromService)
@@ -482,11 +710,11 @@ namespace PlanningServiceHelper
                 }
             }
             //Last two string should be "Start Date" and "End Date"
-            if (attributeOfConfigList[attributeOfConfigList.Count - 2] != "start date")
+            if (!attributeOfConfigList[attributeOfConfigList.Count - 2].Contains("start date"))
             {
                 return false;
             }
-            if (attributeOfConfigList[attributeOfConfigList.Count - 1] != "end date")
+            if (!attributeOfConfigList[attributeOfConfigList.Count - 1].Contains("end date"))
             {
                 return false;
             }
@@ -595,224 +823,19 @@ namespace PlanningServiceHelper
             yield return sb.ToString();
         }
 
-        public static List<Configuration> CreateSellableCapacityConfigsFromCsv(string filePath, int templateId)
-        {
-            var scConfigList = new List<Configuration>();
-            //Get template from service to help validate the csv file is in correct format to create qualifier
-            var response = QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId);
-            //Parse response as template in JObject
-            var templateJObjectFromService = response.Content.ReadAsAsync<JObject>().Result;
-            //Get attributes of the template from service
-            var attributesOfTemplateFromService =
-                QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId +
-                             "/attributes")
-                    .Content.ReadAsAsync<List<JObject>>()
-                    .Result;
-            //Get qualifiers of the template from service
-            var qualifiersOfTemplateFromService =
-                QueryService(PlanningConfigServiceRootUrl + "api/template/" + templateId +
-                             "/qualifiers")
-                    .Content.ReadAsAsync<List<JObject>>()
-                    .Result;
-            var numAttributesOfTemplateFromService = attributesOfTemplateFromService.Count();
-            var numQualifiersOfTemplateFromService = qualifiersOfTemplateFromService.Count();
-            //Create the map for attributes and qualifiers keyed by their names
-            var attributesMapKeyedByName =
-                attributesOfTemplateFromService.ToDictionary(
-                    attributeJObject => attributeJObject["Name"].ToString().ToLower());
-            var qualifiersMapKeyedByName =
-                qualifiersOfTemplateFromService.ToDictionary(
-                    qualifierJObject => qualifierJObject["Name"].ToString().ToLower());
-
-            using (var csvReader = new StreamReader(filePath))
-            {
-                using (var logWriter = new StreamWriter(Directory.GetCurrentDirectory() + @"\ConfigurationsHelperValidationErrorLog.txt"))
-                {
-                    //Read the schema of Csv
-                    var firstLine = csvReader.ReadLine();
-                    if (firstLine == null)
-                    {
-                        throw new Exception("File format Invalid");
-                    }
-
-                    var membersOfConfigList = SplitCsv(firstLine).ToList()
-                        .Select(attribute => attribute.ToLower())
-                        .ToList();
-                    var capacityPerRackIndex = membersOfConfigList.FindIndex(s => s.Equals("capacityperrack"));
-                    var capacityPerRackStartDateIndex = membersOfConfigList.FindIndex(s => s.Equals("start date"));
-                    var capacityPerRackAttributeId = (int)attributesMapKeyedByName["capacityperrack"]["Id"];
-                    //Read values and form a Map
-                    var scMap = new Dictionary<string, Configuration>();
-                    var lineCount = 1;
-                    while (!csvReader.EndOfStream)
-                    {
-                        var line = csvReader.ReadLine();
-                        lineCount++;
-                        if (line == null)
-                        {
-                            continue;
-                        }
-                        var valueListForOneLine = SplitCsv(line).ToList();
-
-                        if (!valueListForOneLine.Any() || valueListForOneLine.Count != membersOfConfigList.Count)
-                        {
-                            continue;
-                        }
-                        //Concatenate qualifier value to form a key of map
-                        var sb = new StringBuilder();
-                        for (var i = 0; i < numQualifiersOfTemplateFromService; i++)
-                        {
-                            if (i > 0)
-                            {
-                                sb.Append("," + valueListForOneLine[i]);
-                            }
-                            else
-                            {
-                                sb.Append(valueListForOneLine[i]);
-                            }
-                        }
-                        var key = sb.ToString();
-                        //If key in the map then update config's CapacityPerRack, StartDate and EndDate
-                        if (scMap.ContainsKey(key))
-                        {
-                            var newTimeSeriesNumber = valueListForOneLine[capacityPerRackStartDateIndex] + ":" + valueListForOneLine[capacityPerRackIndex];
-                            var config = scMap[key];
-                            var errorMsg = "";
-                            //var capacityPerRackAttributeJObject =
-                            //    attributesMapKeyedByName["capacityperrack"];
-                            //var capacityPerRackAttributeId = (int) capacityPerRackAttributeJObject["Id"];
-                            var capacityPerRackAttribute = config.AttributeList.Single(a => a.AttributeId == capacityPerRackAttributeId);
-                            if (!ValidateAttributeValue(newTimeSeriesNumber, attributesMapKeyedByName["capacityperrack"]))
-                            {
-                                errorMsg += "[Attribute: CapacityPerRack" + "]Invalid attributeValue: " + newTimeSeriesNumber;
-                                logWriter.WriteLine("[Line: " + lineCount + "] could not pass validation, the Configuration Name is: " + config.Name);
-                                logWriter.WriteLine(errorMsg);
-                                continue;
-                            }
-                            //Append a new TimeSeriesNumber
-                            capacityPerRackAttribute.AttributeValue += "," + newTimeSeriesNumber;
-                            var configStartDate = !string.IsNullOrEmpty(valueListForOneLine[valueListForOneLine.Count - 2]) 
-                                ? Convert.ToDateTime(valueListForOneLine[valueListForOneLine.Count - 2]) 
-                                : DateTime.Now;
-                            //Last element in valueListForOneLine is the EndDate
-                            var configEndDate = !string.IsNullOrEmpty(valueListForOneLine[valueListForOneLine.Count - 1]) 
-                                ? Convert.ToDateTime(valueListForOneLine[valueListForOneLine.Count - 1]) 
-                                : configStartDate.AddDays(36);
-                            config.StartDate = configStartDate.CompareTo(config.StartDate) < 0
-                                ? configStartDate
-                                : config.StartDate;
-                            config.EndDate = configStartDate.CompareTo(config.EndDate) > 0
-                                ? configEndDate
-                                : config.EndDate;
-                            scMap[key] = config;
-                        }
-                        //Else create a new configuration and add to map
-                        else
-                        {
-                            var timeSeriesNumber = valueListForOneLine[capacityPerRackStartDateIndex] + ":" + valueListForOneLine[capacityPerRackIndex];
-
-                            var configName = key;
-                            var configCategoryId = (int)templateJObjectFromService["CategoryId"];
-                            var configTemplateId = templateId;
-                            var configStartDate = !string.IsNullOrEmpty(valueListForOneLine[valueListForOneLine.Count - 2]) 
-                                ? Convert.ToDateTime(valueListForOneLine[valueListForOneLine.Count - 2]) 
-                                : DateTime.Now;
-                            //Last element in valueListForOneLine is the EndDate
-                            var configEndDate = !string.IsNullOrEmpty(valueListForOneLine[valueListForOneLine.Count - 1]) 
-                                ? Convert.ToDateTime(valueListForOneLine[valueListForOneLine.Count - 1]) 
-                                : configStartDate.AddDays(36);
-                            var configQualifierList = new List<ConfigQualifier>();
-                            var configAttributeList = new List<ConfigAttribute>();
-                            var passValidation = true;
-                            var errorMsg = "";
-                            for (var i = 0; i < numQualifiersOfTemplateFromService + numAttributesOfTemplateFromService; i++)
-                            {
-                                if (i < numQualifiersOfTemplateFromService)
-                                {
-                                    var qualifierName = membersOfConfigList[i].ToLower();
-                                    var targetQualifierJObject = qualifiersMapKeyedByName[qualifierName];
-                                    if (targetQualifierJObject == null)
-                                    {
-                                        throw new Exception("Configuration in csv does not match corresponding template from service");
-                                    }
-                                    var qualifierId = (int)targetQualifierJObject["Id"];
-                                    var qualifierValue = valueListForOneLine[i];
-                                    if (!ValidateQualifierValue(qualifierValue, targetQualifierJObject))
-                                    {
-                                        errorMsg += "[Qualifier:" + membersOfConfigList[i] + "]Invalid qualifierValue: " + qualifierValue;
-                                        passValidation = false;
-                                        break;
-                                    }
-                                    var configQualifierVal = new ConfigQualifier
-                                    {
-                                        QualifierId = qualifierId,
-                                        QualifierValue = qualifierValue
-                                    };
-                                    configQualifierList.Add(configQualifierVal);
-                                }
-                                else
-                                {
-                                    var targetAttributeJObject = attributesMapKeyedByName[membersOfConfigList[i].ToLower()];
-                                    if (targetAttributeJObject == null)
-                                    {
-                                        throw new Exception("Configuration in csv does not match corresponding template from service");
-                                    }
-                                    var attributeId = (int)targetAttributeJObject["Id"];
-                                    var attributeValue = valueListForOneLine[i];
-                                    if (targetAttributeJObject["Name"].ToString().ToLower() == "capacityperrack")
-                                    {
-                                        attributeValue = timeSeriesNumber;
-                                    }
-                                    if (!ValidateAttributeValue(attributeValue, targetAttributeJObject))
-                                    {
-                                        errorMsg += "[Attribute:" + membersOfConfigList[i] + "]Invalid attributeValue: " + attributeValue;
-                                        passValidation = false;
-                                        break;
-                                    }
-                                    var configAttributeVal = new ConfigAttribute
-                                    {
-                                        AttributeId = attributeId,
-                                        AttributeValue = attributeValue,
-                                        Version = 1
-                                    };
-                                    configAttributeList.Add(configAttributeVal);
-                                }
-                            }
-                            if (passValidation == false)
-                            {
-                                logWriter.WriteLine("[Line: " + lineCount + "] could not pass validation, the Configuration Name is: " + configName);
-                                logWriter.WriteLine(errorMsg);
-                                continue;
-                            }
-                            var config = new Configuration
-                            {
-                                Name = configName,
-                                Active = true,
-                                CategoryId = configCategoryId,
-                                QualifierList = configQualifierList,
-                                AttributeList = configAttributeList,
-                                TemplateId = configTemplateId,
-                                StartDate = configStartDate,
-                                EndDate = configEndDate
-                            };
-                            scMap.Add(key, config);
-                        }
-                    }
-                    //Process Map and create sellable capacity configuration list
-                    scConfigList.AddRange(scMap.Keys.Select(key => FormatCapacityPerRackValue(scMap[key], capacityPerRackAttributeId)));
-                }
-            }
-            return scConfigList;
-        }
-
+        /// <summary>
+        /// Formats the SellableCapacityPerRack value.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="sellableCapacityPerRackAttributeId">The sellable capacity per rack attribute identifier.</param>
+        /// <returns>Configuration instance that SellableCapacityPerRack was formatted.</returns>
         private static Configuration FormatCapacityPerRackValue(Configuration config,
-            int capacityPerRackAttributeId)
+            int sellableCapacityPerRackAttributeId)
         {
-            var capacityPerRackAttribute =
-                config.AttributeList.Single(a => a.AttributeId == capacityPerRackAttributeId);
-
-            var capacityPerRackValue = capacityPerRackAttribute.AttributeValue;
-            var valList = capacityPerRackValue.Split(',');
+            var sellableCapacityPerRackAttribute =
+                config.AttributeList.Single(a => a.AttributeId == sellableCapacityPerRackAttributeId);
+            var sellableCapacityPerRackValue = sellableCapacityPerRackAttribute.AttributeValue;
+            var valList = sellableCapacityPerRackValue.Split(',');
             var valSet = new HashSet<string>();
             for (var i = 0; i < valList.Count(); i++)
             {
@@ -834,8 +857,7 @@ namespace PlanningServiceHelper
                     sb.Append(valSortedList[i]);
                 }
             }
-
-            capacityPerRackAttribute.AttributeValue = sb.ToString();
+            sellableCapacityPerRackAttribute.AttributeValue = sb.ToString();
             return config;
         }
     }

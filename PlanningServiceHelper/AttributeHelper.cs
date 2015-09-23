@@ -26,9 +26,7 @@ namespace PlanningServiceHelper
         /// <param name="required">if set to <c>true</c> [required].</param>
         /// <param name="rule">The rule.</param>
         /// <param name="type">The type.</param>
-        /// <exception cref="System.Exception">Ingesting Attribute to service returns insuccess response</exception>
-        public static void IngestAttributeToService(string attributeName, bool required, string rule,
-            AttributeType type = AttributeType.String)
+        public static void IngestAttributeToService(string attributeName, bool required, string rule, AttributeType type = AttributeType.String)
         {
             var attributeCreated = CreateAttribute(attributeName, required, rule, type);
             var attributeIdFromSevice = GetAttributeIdInService(attributeName,
@@ -53,9 +51,8 @@ namespace PlanningServiceHelper
         /// <param name="required">if set to <c>true</c> [required].</param>
         /// <param name="rule">The rule.</param>
         /// <param name="type">The type.</param>
-        /// <returns>Attribute Instance</returns>
-        private static Attribute CreateAttribute(string name, bool required, string rule,
-            AttributeType type = AttributeType.String)
+        /// <returns>Attribute instance.</returns>
+        private static Attribute CreateAttribute(string name, bool required, string rule, AttributeType type = AttributeType.String)
         {
             var attribute = new Attribute
             {
@@ -72,9 +69,6 @@ namespace PlanningServiceHelper
         /// </summary>
         /// <param name="url">The URL.</param>
         /// <param name="attribute">The attribute.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentException">Invalid url</exception>
-        /// <exception cref="System.Exception">Ingesting Attribute to service returns insuccess response</exception>
         private static HttpResponseMessage PostAttributeToService(string url, Attribute attribute)
         {
             if (!Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute))
@@ -85,8 +79,7 @@ namespace PlanningServiceHelper
             {
                 using (var request = new HttpRequestMessage(HttpMethod.Post, url))
                 {
-                    request.Content = new StringContent(JsonConvert.SerializeObject(attribute),
-                        Encoding.UTF8, "application/json");
+                    request.Content = new StringContent(JsonConvert.SerializeObject(attribute), Encoding.UTF8, "application/json");
                     var response = client.SendAsync(request, CancellationToken.None).Result;
                     if (!response.IsSuccessStatusCode)
                     {
@@ -103,9 +96,7 @@ namespace PlanningServiceHelper
         /// </summary>
         /// <param name="attributeName">Name of the attribute.</param>
         /// <param name="url">The URL.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentException">Invalid url</exception>
-        /// <exception cref="System.Exception">Adding Configuration to service returns insuccess response</exception>
+        /// <returns>AttributeId from service.</returns>
         private static int GetAttributeIdInService(string attributeName, string url)
         {
             if (!Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute))

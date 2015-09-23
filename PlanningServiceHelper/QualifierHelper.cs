@@ -24,7 +24,6 @@ namespace PlanningServiceHelper
         /// <param name="qualifierName">Name of the qualifier.</param>
         /// <param name="qualifierUrl">The qualifier URL.</param>
         /// <param name="qualifierValues">The qualifier values.</param>
-        /// <exception cref="System.Exception">Ingesting qualifier to service returns insuccess response</exception>
         public static void IngestQualifierToService(string qualifierName, string qualifierUrl,
             List<string> qualifierValues)
         {
@@ -48,7 +47,7 @@ namespace PlanningServiceHelper
         /// </summary>
         /// <param name="url">The URL.</param>
         /// <param name="qualifier">The qualifier.</param>
-        /// <returns>HttpResponseMessage after post</returns>
+        /// <returns>HttpResponseMessage after post.</returns>
         /// <exception cref="System.ArgumentException">Invalid url</exception>
         /// <exception cref="System.Exception">Ingesting Attribute to service returns insuccess response</exception>
         private static HttpResponseMessage PostQualifierToService(string url, Qualifier qualifier)
@@ -79,7 +78,7 @@ namespace PlanningServiceHelper
         /// </summary>
         /// <param name="qualifierName">Name of the qualifier.</param>
         /// <param name="url">The URL.</param>
-        /// <returns>Id of qualifier</returns>
+        /// <returns>Id of qualifier.</returns>
         /// <exception cref="System.ArgumentException">Invalid url</exception>
         /// <exception cref="System.Exception">Adding Configuration to service returns insuccess response</exception>
         private static int GetQualifierIdInService(string qualifierName, string url)
@@ -125,7 +124,7 @@ namespace PlanningServiceHelper
         /// <param name="url">Url field for a Qualifier</param>
         /// <param name="values">The values.</param>
         /// <returns>
-        ///     Qualifier object
+        ///     Qualifier object.
         /// </returns>
         private static Qualifier CreateQualifier(string name, string url, List<string> values)
         {

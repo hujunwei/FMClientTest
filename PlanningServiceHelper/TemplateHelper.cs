@@ -18,7 +18,7 @@ namespace PlanningServiceHelper
         /// <param name="categoryId">The category identifier.</param>
         /// <param name="attributeIds">The attribute ids.</param>
         /// <param name="qualifierIds">The qualifier ids.</param>
-        /// <returns></returns>
+        /// <returns>ConfigTemplate instance.</returns>
         public static ConfigTemplate CreateTemplate(string name, bool active, int categoryId,
             List<int> attributeIds, List<int> qualifierIds)
         {
@@ -38,9 +38,6 @@ namespace PlanningServiceHelper
         /// </summary>
         /// <param name="url">The URL.</param>
         /// <param name="template">The template.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentException">Invalid url</exception>
-        /// <exception cref="System.Exception">Adding Configuration to service returns insuccess response</exception>
         public static HttpResponseMessage AddTemplateToService(string url, ConfigTemplate template)
         {
             if (!Uri.IsWellFormedUriString(url, UriKind.RelativeOrAbsolute))
